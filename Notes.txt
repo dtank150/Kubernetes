@@ -1,0 +1,104 @@
+EKS:- (Amazon Elastic Kubernets Service)
+EKS Setup Process:- EKS will setup and manage our Kubernetes masters:
+
+Create EKS Cluster -> K8s Master in HA -> Etcd in HA -> IAM plugin setup -> CA setup {for TLS} -> Auot Scaling -> Load Balancers {NLB & ELB) 
+
+Amazon EKS use cases:-
+You can now create a cluster per use case,easily!
+Microservices in containers
+Platform as a Service/Website
+Migrate from on-premise cluster to cloud Kubernetes cluster
+Machine learning cluster (support for GPU instances!)
+Your imagination!
+
+Amazon EKS Architecture:-
+AZ A			AZ B			AZ C
+Master Node		Master node		Master node
+Etcd			Etcd			Etcd
+K8s worker nodes	K8s worker nodes	K8s worker nodes
+
+Get cluster:-
+eksctl get cluster
+
+Cluster Autoscaler:-
+It's Responsible for Dynamically scale the Nodes within a nodegroup - in and out 
+Runs as deployment
+Decides based on CPU & RAM availability/Requests
+Multi-AZ vs Single-AZ Scaling
+   ->nodegroup with singleaZ => For Stateful workloads
+   ->nodegroup multi AZ => For Stateless workloads
+Mixture of On-demand and Spot-instances possible
+
+Helm Package Manager:-
+Concepts:-
+Chart:- All info/dependencies/...to deploy a K8s app
+Config:- optional config to override default
+Release:- a running instance of a chart
+
+Components:-
+Helm Client command-line client for:
+Managing repositories, releases and interfacing with the Helm library
+Helm Library executing all Helm operations by interfacing with the Kubernetes API Server
+
+EKS in Depth:-
+Kubernetes Control Plane:-
+kubectl -> Amazon EKS -> AZ A , AZ B, AZ C
+
+EKS Control Plane Deep Dive:-
+The EKS Kubernetes Control plane is highly available
+Single tenant
+Made of native AWS components
+The whole control plane is fronted by an NLB 
+
+EKS Networking - VPC
+Private subnets:- Contains all the worker nodes to have the application deployed, Must be large CIDR
+Public subnets:- will contain any internet-facing load balancer to expose the applications.
+Private only means you can't expose your applications
+Public only means your worker nodes are exposed to the internet
+The VPC must have DNS hostname and DNS resolution support, otherwise nodes can't register
+
+EKS Networking - Security Groups
+You control 2 security groups:
+Control Plan and Worker Nodes
+
+EKS Pod Networking:-
+Amazon VPC CNI plugin: each pod receives 1 IP address (=ENI) in VPC
+Pods have the same IP address inside the EKS cluster and outside of it
+Subnet Limitations:-
+->CIDR/24 is 254 IP, nit enough to run a lot of pods
+->CIDR/18 is a lot more IP (16,384 IP), better for running more pods
+EC2 Limitations:-
+EC2 instances can only have a limited amount of ENI / IP address
+
+Kubernetes IAM & RBAC Integration:-
+Authentication is held by IAM
+Authorization is done by Kubernetes RBAC (navtive auth for K8s)
+By default, the role you assign to your K8s cluster has system:master permissions
+
+EKS Load Balancers:-
+EKS support Classic Load Balancer, Application Load Balancer and Network Load Balancer
+Classic & Network Load Balancer is for Service of type 'LoadBalancer'
+Application Load Balancer is for ingress Controller
+
+Install Kubernets Dashboard:-
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+
+Backend:Redis
+Single Leader (WRITEs)
+Multi Followers (READ)
+Followers sync continuously from Leader
+
+Frontend:PHP App
+Load balanced to public with ELB
+Read balanced over multiple Follower DBs
+Write req to single Leader DB
+
+Scaling our pods up and down
+How to scale pods
+->UP
+->DOWN
+
+Kubectl
+->On-the-fly-edit
+->YAML file
+K8s dashboard 
